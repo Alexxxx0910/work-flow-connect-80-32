@@ -568,5 +568,3 @@ export const JobProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default JobContext;
-
-}

@@ -19,6 +19,38 @@ import { CommentsList } from '@/components/Comments/CommentsList';
 import { Skeleton } from '@/components/ui/skeleton';
 import axios from 'axios';
 
+// Función para obtener el estilo del badge según el estado
+const getStatusBadgeStyle = (status: string) => {
+  switch (status) {
+    case 'open':
+      return 'bg-green-100 text-green-800 hover:bg-green-200 border-green-200';
+    case 'in_progress':
+      return 'bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200';
+    case 'completed':
+      return 'bg-purple-100 text-purple-800 hover:bg-purple-200 border-purple-200';
+    case 'closed':
+      return 'bg-red-100 text-red-800 hover:bg-red-200 border-red-200';
+    default:
+      return 'bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-200';
+  }
+};
+
+// Función para obtener el texto del estado en español
+const getStatusText = (status: string) => {
+  switch (status) {
+    case 'open':
+      return 'Abierto';
+    case 'in_progress':
+      return 'En Progreso';
+    case 'completed':
+      return 'Completado';
+    case 'closed':
+      return 'Cerrado';
+    default:
+      return 'Desconocido';
+  }
+};
+
 const JobDetail = () => {
   // Hooks de React Router para obtener el ID de la propuesta y navegación
   const { jobId } = useParams<{ jobId: string }>();
@@ -436,6 +468,9 @@ const JobDetail = () => {
     }
   };
 
+  // Asegurarse de que el estado existe y obtener el estilo correspondiente
+  const currentStatus = job.status || 'open';
+
   // Renderizado del componente
   return (
     <MainLayout>
@@ -451,15 +486,9 @@ const JobDetail = () => {
             </div>
             
             <div className="flex items-center gap-2">
-              {/* Badge que muestra el estado de la propuesta */}
-              <Badge className={`
-                ${job?.status === 'open' ? 'bg-green-100 text-green-800 hover:bg-green-200' : 
-                  job?.status === 'in progress' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 
-                  'bg-gray-100 text-gray-800 hover:bg-gray-200'}
-              `}>
-                {job?.status === 'open' ? 'Abierto' : 
-                 job?.status === 'in progress' ? 'En progreso' : 
-                 'Completado'}
+              {/* Badge que muestra el estado de la propuesta con colores diferenciados */}
+              <Badge className={`${getStatusBadgeStyle(currentStatus)} font-medium px-3 py-1`}>
+                {getStatusText(currentStatus)}
               </Badge>
             </div>
           </div>

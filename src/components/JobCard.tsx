@@ -15,6 +15,38 @@ export interface JobProps {
   job: JobType;
 }
 
+// Función para obtener el estilo del badge según el estado
+const getStatusBadgeStyle = (status: string) => {
+  switch (status) {
+    case 'open':
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 border-green-200';
+    case 'in_progress':
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 border-blue-200';
+    case 'completed':
+      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100 border-purple-200';
+    case 'closed':
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100 border-red-200';
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100 border-gray-200';
+  }
+};
+
+// Función para obtener el texto del estado en español
+const getStatusText = (status: string) => {
+  switch (status) {
+    case 'open':
+      return 'Abierto';
+    case 'in_progress':
+      return 'En Progreso';
+    case 'completed':
+      return 'Completado';
+    case 'closed':
+      return 'Cerrado';
+    default:
+      return 'Desconocido';
+  }
+};
+
 export const JobCard = ({ job }: JobProps) => {
   // Función para formatear la fecha
   const formatDate = (dateString: string | number | Date): string => {
@@ -34,6 +66,9 @@ export const JobCard = ({ job }: JobProps) => {
     }
   };
 
+  // Asegurarse de que el estado existe
+  const currentStatus = job.status || 'open';
+
   return (
     <Card className="bg-background dark:bg-gray-800 shadow-md border border-gray-200 dark:border-gray-700 hover:border-wfc-purple dark:hover:border-wfc-purple-light transition-colors">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -51,8 +86,11 @@ export const JobCard = ({ job }: JobProps) => {
             <p className="text-muted-foreground text-xs">{job.category}</p>
           </div>
         </div>
-        <Badge variant="outline" className={`${job.status === 'open' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'} rounded-full px-3 py-1`}>
-          {job.status === 'open' ? 'Abierto' : job.status}
+        <Badge 
+          variant="outline" 
+          className={`${getStatusBadgeStyle(currentStatus)} rounded-full px-3 py-1 font-medium`}
+        >
+          {getStatusText(currentStatus)}
         </Badge>
       </CardHeader>
       <CardContent>

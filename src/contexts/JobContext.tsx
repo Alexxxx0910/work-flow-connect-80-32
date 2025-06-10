@@ -65,8 +65,12 @@ export const JobProvider = ({ children }: { children: React.ReactNode }) => {
         createdAt: job.createdAt ? job.createdAt.toString() : new Date().toString(),
         updatedAt: job.updatedAt ? job.updatedAt.toString() : new Date().toString(),
         // Ensure username is present
-        userName: job.userName || 'Usuario desconocido'
+        userName: job.userName || 'Usuario desconocido',
+        // Ensure status is always valid
+        status: job.status || 'open'
       }));
+      
+      console.log('Jobs refreshed with statuses:', processedJobs.map(j => ({ id: j.id, status: j.status })));
       
       setJobs(processedJobs);
       setFilteredJobs(processedJobs);
@@ -78,7 +82,8 @@ export const JobProvider = ({ children }: { children: React.ReactNode }) => {
           ...job,
           createdAt: job.createdAt ? job.createdAt.toString() : new Date().toString(),
           updatedAt: job.updatedAt ? job.updatedAt.toString() : new Date().toString(),
-          userName: job.userName || 'Usuario desconocido'
+          userName: job.userName || 'Usuario desconocido',
+          status: job.status || 'open'
         }));
         setUserJobs(processedUserJobs);
 
@@ -126,18 +131,37 @@ export const JobProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const updatedJob = await jobService.updateJob(jobId, jobData);
       
+      console.log('Job updated in context with status:', updatedJob.status);
+      
       if (updatedJob) {
         // Actualizar el estado local reemplazando el trabajo actualizado
         setJobs(prevJobs => 
-          prevJobs.map(job => job.id === jobId ? updatedJob : job)
+          prevJobs.map(job => job.id === jobId ? {
+            ...updatedJob,
+            status: updatedJob.status || 'open' // Asegurar que el estado esté presente
+          } : job)
         );
         
         setUserJobs(prevJobs => 
-          prevJobs.map(job => job.id === jobId ? updatedJob : job)
+          prevJobs.map(job => job.id === jobId ? {
+            ...updatedJob,
+            status: updatedJob.status || 'open'
+          } : job)
         );
         
         setFilteredJobs(prevJobs => 
-          prevJobs.map(job => job.id === jobId ? updatedJob : job)
+          prevJobs.map(job => job.id === jobId ? {
+            ...updatedJob,
+            status: updatedJob.status || 'open'
+          } : job)
+        );
+        
+        // También actualizar popularJobs si el trabajo está ahí
+        setPopularJobs(prevJobs => 
+          prevJobs.map(job => job.id === jobId ? {
+            ...updatedJob,
+            status: updatedJob.status || 'open'
+          } : job)
         );
       }
       
@@ -544,3 +568,5 @@ export const JobProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default JobContext;
+
+}

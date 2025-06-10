@@ -1,4 +1,3 @@
-
 const jobModel = require('../models/jobModel');
 const userModel = require('../models/userModel');
 const db = require('../config/database');
@@ -96,20 +95,19 @@ const jobController = {
       
       const jobs = await jobModel.findAll(filter);
       
-      // Get user info for each job
+      // Get user info for each job and ensure status is included
       const jobsWithUserInfo = await Promise.all(jobs.map(async (job) => {
         const user = await userModel.findById(job.userId);
         return {
           ...job,
           userName: user ? user.name : 'Usuario desconocido',
-          userPhoto: user ? user.avatar : null
+          userPhoto: user ? user.avatar : null,
+          // Ensure status is always included
+          status: job.status || 'open'
         };
       }));
       
-      return res.status(200).json({
-        success: true,
-        jobs: jobsWithUserInfo
-      });
+      return res.status(200).json(jobsWithUserInfo);
       
     } catch (error) {
       console.error('Error getting jobs:', error);
@@ -145,10 +143,12 @@ const jobController = {
       const jobWithUser = {
         ...job,
         userName: user ? user.name : 'Usuario desconocido',
-        userPhoto: user ? user.avatar : null
+        userPhoto: user ? user.avatar : null,
+        // Ensure status is always included
+        status: job.status || 'open'
       };
       
-      console.log(`Job found: ${job.id}, title: ${job.title}`);
+      console.log(`Job found: ${job.id}, title: ${job.title}, status: ${jobWithUser.status}`);
       
       return res.status(200).json({
         success: true,
@@ -218,10 +218,12 @@ const jobController = {
       const jobWithUser = {
         ...updatedJob,
         userName: user ? user.name : 'Usuario desconocido',
-        userPhoto: user ? user.avatar : null
+        userPhoto: user ? user.avatar : null,
+        // Ensure the updated status is included
+        status: updatedJob.status || 'open'
       };
       
-      console.log('Job updated successfully:', jobWithUser);
+      console.log('Job updated successfully with status:', jobWithUser.status);
       
       return res.status(200).json({
         success: true,

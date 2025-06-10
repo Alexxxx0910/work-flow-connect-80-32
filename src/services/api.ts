@@ -49,22 +49,41 @@ export const userService = {
 export const jobService = {
   async getAllJobs(): Promise<JobType[]> {
     const response = await api.get('/jobs');
-    return response.data;
+    // Asegurar que cada trabajo tiene un estado válido
+    return response.data.map((job: JobType) => ({
+      ...job,
+      status: job.status || 'open' // Valor por defecto si no hay estado
+    }));
   },
   
   async getJobById(jobId: string): Promise<JobType> {
     const response = await api.get(`/jobs/${jobId}`);
-    return response.data;
+    // Asegurar que el trabajo tiene un estado válido
+    return {
+      ...response.data,
+      status: response.data.status || 'open'
+    };
   },
   
   async createJob(jobData: Partial<JobType>): Promise<JobType> {
     const response = await api.post('/jobs', jobData);
-    return response.data;
+    return {
+      ...response.data,
+      status: response.data.status || 'open'
+    };
   },
   
   async updateJob(jobId: string, jobData: Partial<JobType>): Promise<JobType> {
     const response = await api.put(`/jobs/${jobId}`, jobData);
-    return response.data;
+    
+    // Asegurar que el trabajo actualizado tiene un estado válido
+    const updatedJob = {
+      ...response.data.job,
+      status: response.data.job?.status || jobData.status || 'open'
+    };
+    
+    console.log('Job updated in API service with status:', updatedJob.status);
+    return updatedJob;
   },
   
   async deleteJob(jobId: string): Promise<void> {

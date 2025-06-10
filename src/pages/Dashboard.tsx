@@ -1,3 +1,4 @@
+
 import MainLayout from '@/components/Layout/MainLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useJobs } from '@/contexts/JobContext';
@@ -7,6 +8,38 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { Briefcase, MessageCircle, Timer, ArrowRight } from 'lucide-react';
+
+// Función para obtener el estilo del badge según el estado
+const getStatusBadgeStyle = (status: string) => {
+  switch (status) {
+    case 'open':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'in_progress':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'completed':
+      return 'bg-purple-100 text-purple-800 border-purple-200';
+    case 'closed':
+      return 'bg-red-100 text-red-800 border-red-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+};
+
+// Función para obtener el texto del estado en español
+const getStatusText = (status: string) => {
+  switch (status) {
+    case 'open':
+      return 'Abierto';
+    case 'in_progress':
+      return 'En Progreso';
+    case 'completed':
+      return 'Completado';
+    case 'closed':
+      return 'Cerrado';
+    default:
+      return 'Desconocido';
+  }
+};
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
@@ -118,35 +151,38 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="grid gap-4">
-              {recentJobs.map((job) => (
-                <Link key={job.id} to={`/jobs/${job.id}`}>
-                  <Card className="hover:border-wfc-purple transition-colors">
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-lg font-medium">{job.title}</CardTitle>
-                          <CardDescription className="text-sm">
-                            Publicado por {job.userName} • {formatDate(job.createdAt || job.updatedAt || new Date())}
-                          </CardDescription>
-                        </div>
-                        <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                          {job.status === 'open' ? 'Abierto' : job.status === 'in progress' ? 'En progreso' : 'Completado'}
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-700 text-sm line-clamp-2">{job.description}</p>
-                      <div className="mt-3 flex flex-wrap gap-1">
-                        {job.skills.slice(0, 3).map((skill, index) => (
-                          <Badge key={index} className="bg-wfc-purple text-white hover:bg-wfc-purple-medium">
-                            {skill}
+              {recentJobs.map((job) => {
+                const currentStatus = job.status || 'open';
+                return (
+                  <Link key={job.id} to={`/jobs/${job.id}`}>
+                    <Card className="hover:border-wfc-purple transition-colors">
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="text-lg font-medium">{job.title}</CardTitle>
+                            <CardDescription className="text-sm">
+                              Publicado por {job.userName} • {formatDate(job.createdAt || job.updatedAt || new Date())}
+                            </CardDescription>
+                          </div>
+                          <Badge className={`${getStatusBadgeStyle(currentStatus)} text-xs px-2 py-1 rounded-full font-medium`}>
+                            {getStatusText(currentStatus)}
                           </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-700 text-sm line-clamp-2">{job.description}</p>
+                        <div className="mt-3 flex flex-wrap gap-1">
+                          {job.skills.slice(0, 3).map((skill, index) => (
+                            <Badge key={index} className="bg-wfc-purple text-white hover:bg-wfc-purple-medium">
+                              {skill}
+                            </Badge>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
